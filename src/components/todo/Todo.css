@@ -1,0 +1,19 @@
+.todo{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.todo-main input,textarea{
+    border: none;
+    outline: none;
+}
+
+.addbtn-group,#body{
+    display: none;
+}
+
+input[type="text"]
+{
+    font-weight:bold;
+}

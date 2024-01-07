@@ -1,0 +1,7 @@
+.welcome-container{
+    height: 100%;
+    width: 100%;
+}
+.addTodo-btn:hover{
+    background-color: rgba(255, 0, 0, 0.8);
+}

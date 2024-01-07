@@ -1,0 +1,15 @@
+@keyframes shine {
+  0% {
+    color: black;
+  }
+  50% {
+    color: rgb(255, 51, 0);
+  }
+  100% {
+    color: black;
+  }
+}
+
+.shine {
+  animation: shine 3s infinite;
+}
