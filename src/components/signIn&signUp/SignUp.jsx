@@ -24,7 +24,7 @@ const SignUp = () => {
     setBtnLoader(true);
     try {
       const res = await axios.post(
-        `http://localhost:1000/api/v1/register`,
+        `https://task-master-be-five.vercel.app/api/v1/register`,
         formData,
         { headers: { "Content-Type": "application/json" } }
       );
