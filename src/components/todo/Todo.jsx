@@ -17,7 +17,7 @@ const Todo = ({ isLoggedIn, user }) => {
 
   const getUserTodos = async () => {
     try {
-      const res = await axios.get(`http://localhost:1000/api/v2/todos/` + user);
+      const res = await axios.get(`https://task-master-be-five.vercel.app/api/v2/todos/` + user);
       setTodos(res.data);
     } catch (error) {
       console.log("Something went wrong!");
@@ -50,7 +50,7 @@ const Todo = ({ isLoggedIn, user }) => {
       if(updatingId){
         try {
           await axios.put(
-            `http://localhost:1000/api/v2/todo`,
+            `https://task-master-be-five.vercel.app/api/v2/todo`,
             {
               id: updatingId,
               title: inputs.title,
@@ -69,7 +69,7 @@ const Todo = ({ isLoggedIn, user }) => {
       if (user) {
         // adding to db
         await axios.post(
-          `http://localhost:1000/api/v2/todo`,
+          `https://task-master-be-five.vercel.app/api/v2/todo`,
           {
             id: user,
             title: inputs.title,
