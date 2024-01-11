@@ -27,7 +27,7 @@ const SignUp = ({loginUser}) => {
     setBtnLoader(true);
     try {
       const res = await axios.post(
-        `http://localhost:1000/api/v1/signin`,
+        `https://task-master-be-five.vercel.app/api/v1/signin`,
         formData,
         { headers: { "Content-Type": "application/json" } }
       );
