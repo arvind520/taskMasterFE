@@ -1,31 +1,37 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Todo.css";
 import ShineText from "../common/textAnimation/ShineText";
 import TodoCard from "./TodoCard";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { connect } from "react-redux";
-import axios from "axios";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
-const Todo = ({ isLoggedIn, user }) => {
+let user = "";
+
+const Todo = () => {
   //fetch users todos, add usertodos, manage non user todo
   // user goes from non logged in to loggedIn
   const [inputs, setInputs] = useState({ title: "", body: "" });
   const [todos, setTodos] = useState([]);
   const [updatingIdx, setUpdatingIdx] = useState(null); // local
   const [updatingId, setUpdatingId] = useState(null); // db
+  const [isLoading, setLoading] = useState(false)
 
   const getUserTodos = async () => {
+    setLoading(true)
     try {
       const res = await axios.get(`https://task-master-be.vercel.app/api/v2/todos/` + user);
       setTodos(res.data);
     } catch (error) {
       console.log("Something went wrong!");
     }
+    setLoading(false)
   };
 
   //checking loggedIn and fetching
   useEffect(() => {
+    user = sessionStorage.getItem("user")
     if (user) {
       getUserTodos();
     }
@@ -81,7 +87,7 @@ const Todo = ({ isLoggedIn, user }) => {
       toast.success("Task added successfully!");
     }
     setInputs({ title: "", body: "" });
-    !isLoggedIn && toast.warn("Tasks are not Saved! Please Login.");
+    !user && toast.warn("Tasks are not Saved! Please Login.");
   };
 
   const handleUpdate = (idx, updatingId) => {
@@ -150,7 +156,8 @@ const Todo = ({ isLoggedIn, user }) => {
         className="todo-body container d-flex flex-wrap justify-content-center align-items-center mb-4"
         style={{ gap: "20px" }}
       >
-        {todos.length ? (
+
+        {isLoading ? <AiOutlineLoading3Quarters className="todoLoading"/> : (todos.length ? (
           todos.map((todo, idx) => (
             <TodoCard
               todo={{ ...todo, idx }}
@@ -161,17 +168,11 @@ const Todo = ({ isLoggedIn, user }) => {
           ))
         ) : (
           <ShineText text={"Currently there is no todo!"} />
-        )}
+        ))}
       </div>
     </div>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    isLoggedIn: state.auth.isLoggedIn,
-    user: state.auth.user,
-  };
-};
 
-export default connect(mapStateToProps)(Todo);
+export default Todo;
