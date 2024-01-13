@@ -2,7 +2,7 @@ import React from "react";
 import { MdDeleteForever } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 
-const TodoCard = ({ todo, handleUpdate, handleDelete }) => {
+const TodoCard = ({ todo, handleUpdate, handleDelete, show }) => {
   const { title, body, idx } = todo;
   return (
     <div className="card" style={{ width: "18rem" }}>
@@ -16,7 +16,10 @@ const TodoCard = ({ todo, handleUpdate, handleDelete }) => {
         <div className="mt-4">
           <button
             className="btn btn-sm btn-outline-primary"
-            onClick={() => handleUpdate(idx, todo?._id)}
+            onClick={() => {
+              show();
+              handleUpdate(idx, todo?._id)
+            }}
           >
             <FaRegEdit />&nbsp;
             Update

@@ -165,6 +165,7 @@ const Todo = () => {
               key={idx}
               handleUpdate={handleUpdate}
               handleDelete={handleDelete}
+              show={show}
             />
           ))
         ) : (
