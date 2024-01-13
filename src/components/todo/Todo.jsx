@@ -16,7 +16,7 @@ const Todo = () => {
   const [todos, setTodos] = useState([]);
   const [updatingIdx, setUpdatingIdx] = useState(null); // local
   const [updatingId, setUpdatingId] = useState(null); // db
-  const [isLoading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false);
 
   const getUserTodos = async () => {
     setLoading(true)
@@ -71,10 +71,9 @@ const Todo = () => {
       }
       toast.info("Task updated successfully!");
     } else {
-      setTodos([...todos, inputs]);
       if (user) {
         // adding to db
-        await axios.post(
+        const res = await axios.post(
           `https://task-master-be.vercel.app/api/v2/todo`,
           {
             id: user,
@@ -83,11 +82,13 @@ const Todo = () => {
           },
           { headers: { "Content-Type": "application/json" } }
         );
+        setTodos([...todos, res.data])
       }
       toast.success("Task added successfully!");
     }
     setInputs({ title: "", body: "" });
     !user && toast.warn("Tasks are not Saved! Please Login.");
+    !user && setTodos([...todos, inputs]);
   };
 
   const handleUpdate = (idx, updatingId) => {
@@ -138,7 +139,7 @@ const Todo = () => {
             onClick={handleAdd}
             disabled={inputs.title.trim() === "" && inputs.body.trim() === ""}
           >
-            Add
+            {(updatingId || updatingIdx)? "Update" : "Add"}
           </button>
           <button
             className="btn btn-dark px-4"
