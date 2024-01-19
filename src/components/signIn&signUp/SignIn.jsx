@@ -27,7 +27,7 @@ const SignUp = ({loginUser}) => {
     setBtnLoader(true);
     try {
       const res = await axios.post(
-        `https://task-master-be.vercel.app/api/v1/signin`,
+        process.env.REACT_APP_BASE_URL ? process.env.REACT_APP_BASE_URL+"api/v1/signin" : `https://task-master-be.vercel.app/api/v1/signin`,
         formData,
         { headers: { "Content-Type": "application/json" } }
       );
