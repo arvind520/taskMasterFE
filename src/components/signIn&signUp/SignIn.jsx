@@ -87,6 +87,9 @@ const SignUp = ({loginUser}) => {
             <BtnLoader active={btnLoader} /> Sign In
           </button>
         </form>
+        <p className="my-4">
+          <Link to="/forgotpassword">Forgot your password?</Link>
+        </p>
       </div>
     </div>
   );
