@@ -49,13 +49,15 @@ const Todo = (props) => {
   //checking loggedIn and fetching
   useEffect(() => {
     user = localStorage.getItem("user");
-    const token = getItemWithTTLCheck("token");
-    if (!token) {
-      props.logout();
-      toast.warn("Session Expired! Please Login Again");
-      navigate("/signin");
-    } else {
-      getUserTodos(token);
+    if (user) {
+      const token = getItemWithTTLCheck("token");
+      if (!token) {
+        props.logout();
+        toast.warn("Session Expired! Please Login Again");
+        navigate("/signin");
+      } else {
+        getUserTodos(token);
+      }
     }
   }, []);
 
@@ -212,11 +214,11 @@ const Todo = (props) => {
   const handleDelete = async (id) => {
     if (user) {
       const token = getItemWithTTLCheck("token");
-      if(!token){
+      if (!token) {
         props.logout();
         toast.warn("Session Expired! Please Login Again");
         navigate("/signin");
-      }else{
+      } else {
         //DB
         try {
           await axios.delete(
