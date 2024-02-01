@@ -9,8 +9,9 @@ import BtnLoader from "../common/btnLoader/BtnLoader";
 import "./SignIn.css";
 
 import { signIn } from "../../redux/auth/authActions";
+import { setItemWithTTL } from "../../utils/genericFunctions";
 
-const SignUp = ({loginUser}) => {
+const SignIn = ({loginUser}) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -34,7 +35,8 @@ const SignUp = ({loginUser}) => {
       if (res.data.message === "Login successfull!") {
         toast.success(res.data.message);
         loginUser(res.data.user);
-        sessionStorage.setItem("user",res.data.user)
+        localStorage.setItem("user",res.data.user);
+        setItemWithTTL("token", res.data.token, res.data.expiresTime)
         navigate("/todo")
       } else {
         toast.info(res.data.message);
@@ -107,4 +109,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps,mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps,mapDispatchToProps)(SignIn);

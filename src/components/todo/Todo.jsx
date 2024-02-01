@@ -6,11 +6,16 @@ import "./Todo.css";
 import ShineText from "../common/textAnimation/ShineText";
 import TodoCard from "./TodoCard";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { getItemWithTTLCheck } from "../../utils/genericFunctions";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../redux/auth/authActions";
+import { connect } from "react-redux";
 
 let user = "";
 
-const Todo = () => {
+const Todo = (props) => {
   //TODO user goes from non logged in to loggedIn
+  const navigate = useNavigate();
   const [inputs, setInputs] = useState({ title: "", body: "", status: "" });
   const [todos, setTodos] = useState([]);
   const [isLoading, setLoading] = useState(false);
@@ -21,13 +26,18 @@ const Todo = () => {
     setIsUpdatingAndID(null);
   };
 
-  const getUserTodos = async () => {
+  const getUserTodos = async (token) => {
     setLoading(true);
     try {
       const res = await axios.get(
         process.env.REACT_APP_BASE_URL
           ? process.env.REACT_APP_BASE_URL + "api/v2/todos/" + user
-          : `https://task-master-be.vercel.app/api/v2/todos/` + user
+          : `https://task-master-be.vercel.app/api/v2/todos/` + user,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setTodos(res.data);
     } catch (error) {
@@ -38,9 +48,14 @@ const Todo = () => {
 
   //checking loggedIn and fetching
   useEffect(() => {
-    user = sessionStorage.getItem("user");
-    if (user) {
-      getUserTodos();
+    user = localStorage.getItem("user");
+    const token = getItemWithTTLCheck("token");
+    if (!token) {
+      props.logout();
+      toast.warn("Session Expired! Please Login Again");
+      navigate("/signin");
+    } else {
+      getUserTodos(token);
     }
   }, []);
 
@@ -53,23 +68,35 @@ const Todo = () => {
 
   const addTodo = async () => {
     if (user) {
-      //Added it to DB
-      try {
-        const res = await axios.post(
-          process.env.REACT_APP_BASE_URL
-            ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
-            : `https://task-master-be.vercel.app/api/v2/todo`,
-          {
-            id: user,
-            title: inputs.title,
-            body: inputs.body,
-            status: inputs.status == "" ? "todo" : inputs.status,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        getUserTodos();
-      } catch (error) {
-        console.log("Unable to Added it to DB!");
+      const token = getItemWithTTLCheck("token");
+      if (!token) {
+        props.logout();
+        toast.warn("Session Expired! Please Login Again");
+        navigate("/signin");
+      } else {
+        //Added it to DB
+        try {
+          const res = await axios.post(
+            process.env.REACT_APP_BASE_URL
+              ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
+              : `https://task-master-be.vercel.app/api/v2/todo`,
+            {
+              id: user,
+              title: inputs.title,
+              body: inputs.body,
+              status: inputs.status == "" ? "todo" : inputs.status,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          getUserTodos(token);
+        } catch (error) {
+          console.log("Unable to Added it to DB!");
+        }
       }
     } else {
       //Added as local + adding _id
@@ -104,23 +131,30 @@ const Todo = () => {
   const updateTodo = async () => {
     if (user) {
       //update todo in DB
-      try {
-        await axios.put(
-          process.env.REACT_APP_BASE_URL
-            ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
-            : `https://task-master-be.vercel.app/api/v2/todo`,
-          {
-            id: isUpdatingAndID,
-            title: inputs.title,
-            body: inputs.body,
-            status: inputs.status == "" ? "todo" : inputs.status,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        //getting updated todo list
-        getUserTodos();
-      } catch (error) {
-        console.log("Unable to update todo in DB!");
+      const token = getItemWithTTLCheck("token");
+      if (!token) {
+        props.logout();
+        toast.warn("Session Expired! Please Login Again");
+        navigate("/signin");
+      } else {
+        try {
+          await axios.put(
+            process.env.REACT_APP_BASE_URL
+              ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
+              : `https://task-master-be.vercel.app/api/v2/todo`,
+            {
+              id: isUpdatingAndID,
+              title: inputs.title,
+              body: inputs.body,
+              status: inputs.status == "" ? "todo" : inputs.status,
+            },
+            { headers: { "Content-Type": "application/json" } }
+          );
+          //getting updated todo list
+          getUserTodos(token);
+        } catch (error) {
+          console.log("Unable to update todo in DB!");
+        }
       }
     } else {
       // update local
@@ -141,24 +175,31 @@ const Todo = () => {
   const handleStatusChange = async (id, status) => {
     if (user) {
       //DB
-      try {
-        const foundTodo = todos.filter((ele) => ele._id == id);
-        const updatedTodo = {
-          id: id,
-          ...foundTodo[0],
-          status: status,
-        };
-        await axios.put(
-          process.env.REACT_APP_BASE_URL
-            ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
-            : `https://task-master-be.vercel.app/api/v2/todo`,
-          updatedTodo,
-          { headers: { "Content-Type": "application/json" } }
-        );
-        //getting updated todo list
-        getUserTodos();
-      } catch (error) {
-        console.log("Unable to update todo in DB!");
+      const token = getItemWithTTLCheck("token");
+      if (!token) {
+        props.logout();
+        toast.warn("Session Expired! Please Login Again");
+        navigate("/signin");
+      } else {
+        try {
+          const foundTodo = todos.filter((ele) => ele._id == id);
+          const updatedTodo = {
+            id: id,
+            ...foundTodo[0],
+            status: status,
+          };
+          await axios.put(
+            process.env.REACT_APP_BASE_URL
+              ? process.env.REACT_APP_BASE_URL + "api/v2/todo"
+              : `https://task-master-be.vercel.app/api/v2/todo`,
+            updatedTodo,
+            { headers: { "Content-Type": "application/json" } }
+          );
+          //getting updated todo list
+          getUserTodos(token);
+        } catch (error) {
+          console.log("Unable to update todo in DB!");
+        }
       }
     } else {
       //Local
@@ -170,17 +211,24 @@ const Todo = () => {
 
   const handleDelete = async (id) => {
     if (user) {
-      //DB
-      try {
-        await axios.delete(
-          process.env.REACT_APP_BASE_URL
-            ? process.env.REACT_APP_BASE_URL + "api/v2/todo/" + id
-            : `https://task-master-be.vercel.app/api/v2/todo/` + id
-        );
-        //get updated users
-        getUserTodos();
-      } catch (error) {
-        console.log("Unable to delete from DB!");
+      const token = getItemWithTTLCheck("token");
+      if(!token){
+        props.logout();
+        toast.warn("Session Expired! Please Login Again");
+        navigate("/signin");
+      }else{
+        //DB
+        try {
+          await axios.delete(
+            process.env.REACT_APP_BASE_URL
+              ? process.env.REACT_APP_BASE_URL + "api/v2/todo/" + id
+              : `https://task-master-be.vercel.app/api/v2/todo/` + id
+          );
+          //get updated users
+          getUserTodos(token);
+        } catch (error) {
+          console.log("Unable to delete from DB!");
+        }
       }
     } else {
       // LOCAL
@@ -320,4 +368,10 @@ const Todo = () => {
   );
 };
 
-export default Todo;
+const mapActionsToProps = (dispatch) => {
+  return {
+    logout: () => dispatch(logout()),
+  };
+};
+
+export default connect(null, mapActionsToProps)(Todo);

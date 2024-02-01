@@ -50,7 +50,7 @@ function Navbar({ isLoggedIn, logoutUser }) {
                   className="btn btn-outline-danger"
                   aria-current="page"
                   onClick={() => {
-                    sessionStorage.removeItem("user")
+                    localStorage.removeItem("user")
                     logoutUser();
                     navigate("/")
                   }}

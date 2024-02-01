@@ -17,8 +17,8 @@ import ResetPassword from "./components/signIn&signUp/ResetPassword";
 
 function App({loginUser}) {
   useEffect(()=>{
-    if(sessionStorage.getItem("user") !== null){
-      loginUser(sessionStorage.getItem("user"))
+    if(localStorage.getItem("user") !== null){
+      loginUser(localStorage.getItem("user"))
     }
   })
   return (
